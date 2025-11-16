@@ -1,4 +1,4 @@
-package com.rivaan.allen.allen
+package com.samankgupta.allen
 
 import io.flutter.embedding.android.FlutterActivity
 

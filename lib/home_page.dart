@@ -1,13 +1,9 @@
-import 'package:allen/openai_service.dart';
 import 'package:allen/pallete.dart';
 import 'package:flutter/material.dart';
-import 'package:allen/feature_box.dart';
-import 'package:speech_to_text/speech_recognition_result.dart' show SpeechRecognitionResult;
-import 'package:speech_to_text/speech_to_text.dart';
-import 'package:flutter_tts/flutter_tts.dart';
 import 'package:animate_do/animate_do.dart';
 
-
+import 'chat_page.dart';
+import 'speech_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -17,67 +13,16 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final speechToText = SpeechToText();
-  final flutterTts = FlutterTts();
-
-  String lastWords = '';
-  final OpenAIService openAIService = OpenAIService();
-  String? generatedContent;
+  // Home page no longer hosts speech/chat logic; those live on their pages.
   int start = 200;
   int delay = 200;
 
   @override
-  void initState() {
-    super.initState();
-    initSpeechToText();
-    initTextToSpeech();
-  }
-
-  Future<void> initTextToSpeech() async {
-    await flutterTts.setSharedInstance(true);
-    setState(() {});
-  }
-
-  Future<void> initSpeechToText() async {
-    await speechToText.initialize();
-    setState(() {});
-  }
-
-  Future<void> startListening() async {
-    await speechToText.listen(onResult: onSpeechResult);
-    setState(() {});
-  }
-
-  Future<void> stopListening() async {
-    await speechToText.stop();
-    setState(() {});
-  }
-
-  void onSpeechResult(SpeechRecognitionResult result) {
-    setState(() {
-      lastWords = result.recognizedWords;
-    });
-  }
-
-  Future<void> systemSpeak(String content) async{
-    await flutterTts.speak(content);
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-    speechToText.stop();
-    flutterTts.stop();
-  }
-
-
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar : AppBar(
-      title : BounceInDown(child: const Text('Allen')),
-      leading: const Icon(Icons.menu),
-      centerTitle: true,
+      appBar: AppBar(
+        title: BounceInDown(child: const Text('GWSB Front Desk')),
+        centerTitle: true,
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -102,122 +47,114 @@ class _HomePageState extends State<HomePage> {
                     decoration: const BoxDecoration(
                       shape: BoxShape.circle,
                       image: DecorationImage(
-                        image: AssetImage(
-                          'assets/images/virtualAssistant.png',
-                        ),
+                        image: AssetImage('assets/images/virtualAssistant.png'),
                       ),
                     ),
                   ),
                 ],
               ),
             ),
-          //chat bubble
-          FadeInRight(
-            child: Container(
-              padding: const EdgeInsets.symmetric(
-                vertical: 10,
-                horizontal: 20,
-              ),
-              margin: const EdgeInsets.symmetric(horizontal: 40).copyWith(
-                top: 30,
-              ),
-              decoration: BoxDecoration(
-                border: Border.all(
-                  color: Pallete.borderColor,
+            // short description
+            FadeInRight(
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  vertical: 20,
+                  horizontal: 24,
                 ),
-                borderRadius: BorderRadius.circular(20).copyWith(
-                  topLeft: Radius.zero,
-                ),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 10.0),
-                child:  Text(
-                  generatedContent ?? 'Good Morning, what task can I do for you?',
+                margin: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                ).copyWith(top: 24),
+                child: const Text(
+                  'Welcome to the GW School of Business Undergraduate Programs. \n\nSelect how you would like to interact with our front desk assistant - by chat or by voice.',
+                  textAlign: TextAlign.center,
                   style: TextStyle(
                     fontFamily: 'Cera Pro',
-                  color: Pallete.mainFontColor,
-                  fontSize: 18,
-                )),
+                    color: Pallete.mainFontColor,
+                    fontSize: 18,
+                  ),
+                ),
               ),
             ),
-          ),
-          SlideInLeft(
-            child: Visibility(
-              visible: generatedContent == null,
-              child: Container(
-                padding: const EdgeInsets.all(10),
-                alignment: Alignment.centerLeft,
-                margin: const EdgeInsets.only(
-                  top: 10,
-                  left: 20,
-                ),
-                child: const Text('Here are a few features', style: TextStyle(
-                  fontFamily: 'Cera Pro',
-                  color: Pallete.mainFontColor,
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                )),
+
+            // Buttons for Chat and Speech
+            Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 24.0,
+                vertical: 40,
+              ),
+              child: Column(
+                children: [
+                  SlideInLeft(
+                    delay: Duration(milliseconds: start),
+                    child: SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton.icon(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Pallete.firstSuggestionBoxColor,
+                          // make the button slightly taller
+                          minimumSize: const Size.fromHeight(56),
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 20,
+                            horizontal: 12,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        icon: const Icon(Icons.chat_bubble_outline),
+                        label: const Text(
+                          'Chat with the Assistant',
+                          style: TextStyle(fontSize: 18),
+                        ),
+                        onPressed: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(builder: (_) => const ChatPage()),
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  SlideInLeft(
+                    delay: Duration(milliseconds: start + delay),
+                    child: SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton.icon(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Pallete.secondSuggestionBoxColor,
+                          // make the button slightly taller
+                          minimumSize: const Size.fromHeight(56),
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 20,
+                            horizontal: 12,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        icon: const Icon(Icons.mic_none_outlined),
+                        label: const Text(
+                          'Speak with the Assistant',
+                          style: TextStyle(fontSize: 18),
+                        ),
+                        onPressed: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (_) => const SpeechPage(),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
-          ),
-          //features list
-          Visibility(
-            visible: generatedContent == null,
-            child: Column(
-              children: [
-                SlideInLeft(
-                  delay: Duration(milliseconds: start),
-                  child: const FeatureBox(
-                    color: Pallete.firstSuggestionBoxColor,
-                    headerText: 'ChatGPT',
-                    descriptionText: 
-                    'A smarter way to stay organized and informed with ChatGPT',
-                  ),
-                ),
-                SlideInLeft(
-                  delay: Duration(milliseconds: start + delay),
-                  child: FeatureBox(
-                    color: Pallete.secondSuggestionBoxColor,
-                    headerText: 'Dall-E',
-                    descriptionText: 
-                    'Get inspired and stay creative with your personal assiatnt powered by Dall-E',
-                  ),
-                ),
-                SlideInLeft(
-                  delay: Duration(milliseconds: start + 2 * delay),
-                  child: const FeatureBox(
-                    color: Pallete.thirdSuggestionBoxColor,
-                    headerText: 'Smart Voice Assistant',
-                    descriptionText: 
-                    'Get the best of both worlds with a voice assistant powered by Dall-E and ChatGPT',
-                  ),
-                ),
-              ],
-            ),
-          )
+            // (Feature previews removed per request)
           ],
         ),
       ),
-      floatingActionButton: ZoomIn(
-        delay: Duration(milliseconds: start + 3 * delay),
-        child: FloatingActionButton(
-          backgroundColor: Pallete.firstSuggestionBoxColor,
-          onPressed: () async {
-            if(await speechToText.hasPermission && speechToText.isNotListening){
-              await startListening();
-            } else if(speechToText.isListening){
-              final speech = await openAIService.isArtPromptAPI(lastWords);
-              generatedContent = speech;     
-              setState(() {});
-              await systemSpeak(speech); 
-              await stopListening();
-            } else{
-              initSpeechToText();
-            }
-          },
-          child: Icon(speechToText.isListening ? Icons.stop : Icons.mic),
-        ),
-      ),
+      // floating action removed - functionality moved to dedicated pages
     );
   }
 }
